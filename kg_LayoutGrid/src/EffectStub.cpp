@@ -372,6 +372,7 @@ static PF_Err ParamsSetup(PF_InData* in_data, PF_OutData* out_data, PF_ParamDef*
 	PF_ADD_FLOAT_SLIDERX("Band Opacity", 1, 255, 1, 160, 48, 0, 0, 0, BAND_OPACITY_DISK_ID);
 	PF_ADD_COLOR("Column Color", 255, 140, 140, COLUMN_COLOR_DISK_ID);
 	PF_ADD_COLOR("Row Color", 255, 170, 170, ROW_COLOR_DISK_ID);
+	PF_ADD_COLOR("Spiral Color", 255, 210, 64, SPIRAL_COLOR_DISK_ID);
 	PF_END_TOPIC(STYLE_TOPIC_END_DISK_ID);
 
 	PF_ADD_TOPIC("Guides", GUIDES_TOPIC_START_DISK_ID);
@@ -669,16 +670,17 @@ static PF_Err Render(PF_InData* in_data, PF_OutData* out_data, PF_ParamDef* para
 	const A_long lineWidth = static_cast<A_long>(lineWidthFromParams(params));
 	const PF_Pixel colColor = colorParam(params, KG_LAYOUTGRID_COLUMN_COLOR, { PF_MAX_CHAN8, 80, 170, 255 });
 	const PF_Pixel rowColor = colorParam(params, KG_LAYOUTGRID_ROW_COLOR, { PF_MAX_CHAN8, 255, 140, 90 });
+	const PF_Pixel spiralColor = colorParam(params, KG_LAYOUTGRID_SPIRAL_COLOR, { PF_MAX_CHAN8, 255, 210, 64 });
 	PF_PixelFormat format = PF_PixelFormat_ARGB32;
 	AEFX_SuiteScoper<PF_WorldSuite2> worldSuite(in_data, kPFWorldSuite, kPFWorldSuiteVersion2, out_data);
 	if (!worldSuite->PF_GetPixelFormat(output, &format)) {
 		if (guideMode == GUIDE_MODE_RATIO_RECTS || guideMode == GUIDE_MODE_RATIO_RECTS_AND_SPIRAL) {
 			drawRatioRectangles(output, format, ratioForGuideMode(GUIDE_MODE_GOLDEN_RATIO), lineWidth, colColor, opacity);
 			if (guideMode == GUIDE_MODE_RATIO_RECTS_AND_SPIRAL) {
-				drawGoldenSpiral(output, format, lineWidth, rowColor, opacity);
+				drawGoldenSpiral(output, format, lineWidth, spiralColor, opacity);
 			}
 		} else if (guideMode == GUIDE_MODE_GOLDEN_SPIRAL) {
-			drawGoldenSpiral(output, format, lineWidth, rowColor, opacity);
+			drawGoldenSpiral(output, format, lineWidth, spiralColor, opacity);
 		} else if (displayMode == DISPLAY_MODE_BANDS && guideMode == GUIDE_MODE_GRID) {
 			const auto columns = aeflg::calculateColumns(static_cast<double>(output->width), static_cast<double>(output->height), settings);
 			const auto rows = aeflg::calculateRows(static_cast<double>(output->width), static_cast<double>(output->height), settings);

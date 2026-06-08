@@ -18,13 +18,13 @@ The PF effect draws the layout grid directly on the layer it is applied to. The 
 Build:
 
 ```powershell
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" Examples\kg_test\kg_LayoutGrid\Win\kg_LayoutGrid.vcxproj /p:Configuration=Release /p:Platform=x64 /m
+& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\MSBuild.exe" Examples\kg_plugins\kg_LayoutGrid\Win\kg_LayoutGrid.vcxproj /p:Configuration=Release /p:Platform=x64 /m
 ```
 
 Output:
 
 ```text
-Examples/kg_test/build/Release/kg_LayoutGrid.aex
+Examples/kg_plugins/build/Release/kg_LayoutGrid.aex
 ```
 
 Install by copying the `.aex` to an After Effects Plug-ins folder, for example:
@@ -36,7 +36,7 @@ C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\Plug-ins\
 ## Use
 
 1. Apply `Effect > KG_plugins > kg_LayoutGrid` to a solid or layer.
-2. Set Columns, Rows, Band Opacity, Column Color, and Row Color in Effect Controls.
+2. Set Columns, Rows, Band Opacity, Column Color, Row Color, and Spiral Color in Effect Controls.
 3. Use `Apply Guides` to create AE standard guides from the current settings.
 4. Use `Clear Grid Guides` or `Clear All` to remove guides created by this effect.
 
