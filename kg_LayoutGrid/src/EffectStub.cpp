@@ -84,6 +84,33 @@ static aeflg::GridSettings settingsFromParams(PF_ParamDef* params[])
 	return settings;
 }
 
+static double rationalScale(const PF_RationalScale& ratio)
+{
+	if (ratio.den == 0) {
+		return 1.0;
+	}
+	const double value = static_cast<double>(ratio.num) / static_cast<double>(ratio.den);
+	return value > 0.0 ? value : 1.0;
+}
+
+static aeflg::GridSettings scaleSettingsForRender(const aeflg::GridSettings& settings, double scaleX, double scaleY)
+{
+	aeflg::GridSettings scaled = settings;
+	scaled.columns.marginLeft *= scaleX;
+	scaled.columns.marginRight *= scaleX;
+	scaled.columns.gutter *= scaleX;
+	scaled.rows.marginTop *= scaleY;
+	scaled.rows.marginBottom *= scaleY;
+	scaled.rows.gutter *= scaleY;
+	return scaled;
+}
+
+static A_long scaleLineWidthForRender(A_long lineWidth, double scaleX, double scaleY)
+{
+	const double scale = std::min(scaleX, scaleY);
+	return std::max<A_long>(1, static_cast<A_long>(std::floor(lineWidth * scale + 0.5)));
+}
+
 static int lineWidthFromParams(PF_ParamDef* params[])
 {
 	return std::max(1, std::min(64, static_cast<int>(paramDouble(params, KG_LAYOUTGRID_LINE_WIDTH, 2.0) + 0.5)));
@@ -221,33 +248,35 @@ static std::string buildEffectScript(EffectAction action, const aeflg::GridSetti
 	js << "function comp(){dbg('comp');var c=app.project.activeItem;if(!c || c.numLayers===undefined)fail('Active item is not a composition.');return c;}\n";
 	js << "function hasKgEffect(layer){try{var fx=layer.property('ADBE Effect Parade');if(!fx)return false;for(var i=1;i<=fx.numProperties;i++){var e=fx.property(i);if(e&&(e.matchName==='kg_LayoutGrid'||e.name==='kg_LayoutGrid'))return true;}}catch(e){}return false;}\n";
 	js << "function controller(c){dbg('controller');var layers=null;try{layers=c.selectedLayers;}catch(e){layers=null;}if(layers&&layers.length){for(var i=0;i<layers.length;i++){if(hasKgEffect(layers[i]))return layers[i];}return layers[0];}for(var j=1;j<=c.numLayers;j++){var layer=c.layer(j);if(hasKgEffect(layer))return layer;}fail('Select the layer with kg_LayoutGrid applied.');}\n";
-	js << "function propValue(layer,n,fb){try{var p=layer.property('ADBE Transform Group').property(n);if(p)return p.value;}catch(e){}return fb;}\n";
-	js << "function layerBounds(c,layer){dbg('layerBounds');var w=0;var h=0;try{if(layer.source){w=layer.source.width;h=layer.source.height;}}catch(e){}if(!w||!h){try{var sr=layer.sourceRectAtTime(c.time,false);w=sr.width;h=sr.height;}catch(e2){}}if(!w||!h){w=c.width;h=c.height;}var pos=propValue(layer,'ADBE Position',[c.width/2,c.height/2,0]);var anc=propValue(layer,'ADBE Anchor Point',[w/2,h/2,0]);var scl=propValue(layer,'ADBE Scale',[100,100,100]);var rot=propValue(layer,'ADBE Rotate Z',0);try{var rz=layer.property('ADBE Transform Group').property('ADBE Rotation');if(rz)rot=rz.value;}catch(er){}var sx=scl[0]/100.0;var sy=scl[1]/100.0;var rad=rot*3.141592653589793/180.0;var cs=Math.cos(rad);var sn=Math.sin(rad);function xform(x,y){var dx=(x-anc[0])*sx;var dy=(y-anc[1])*sy;return [pos[0]+dx*cs-dy*sn,pos[1]+dx*sn+dy*cs];}var pts=[xform(0,0),xform(w,0),xform(w,h),xform(0,h)];var l=pts[0][0],r=pts[0][0],t=pts[0][1],b=pts[0][1];for(var i=1;i<pts.length;i++){if(pts[i][0]<l)l=pts[i][0];if(pts[i][0]>r)r=pts[i][0];if(pts[i][1]<t)t=pts[i][1];if(pts[i][1]>b)b=pts[i][1];}l=Math.max(0,Math.min(c.width,l));r=Math.max(0,Math.min(c.width,r));t=Math.max(0,Math.min(c.height,t));b=Math.max(0,Math.min(c.height,b));return {left:l,top:t,width:r-l,height:b-t};}\n";
+	js << "function roundGuides(gs){var out=[];for(var i=0;i<gs.length;i++)out.push({orientation:gs[i].orientation,position:Math.round(gs[i].position)});return out;}\n";
 	js << "function uniqueGuides(gs){var out=[];var seen={};for(var i=0;i<gs.length;i++){var p=Math.round(gs[i].position);var k=gs[i].orientation+':'+p;if(!seen[k]){seen[k]=true;out.push({orientation:gs[i].orientation,position:p});}}return out;}\n";
-	js << "function ratioGuides(bounds,m){dbg('ratioGuides mode='+m);var r=(m===3)?2.414213562373095:(m===4)?3.302775637731995:1.618033988749895;var x=bounds.width/(r+1);var y=bounds.height/(r+1);return uniqueGuides([{orientation:1,position:bounds.left+x},{orientation:1,position:bounds.left+bounds.width-x},{orientation:0,position:bounds.top+y},{orientation:0,position:bounds.top+bounds.height-y}]);}\n";
+	js << "function aeOrientation(o){return o===1?1:0;}\n";
+	js << "function legacyAeOrientation(o){return o===1?0:1;}\n";
+	js << "function ratioGuides(c,m){dbg('ratioGuides mode='+m);var r=(m===3)?2.414213562373095:(m===4)?3.302775637731995:1.618033988749895;var x=c.width/(r+1);var y=c.height/(r+1);return uniqueGuides([{orientation:1,position:x},{orientation:1,position:c.width-x},{orientation:0,position:y},{orientation:0,position:c.height-y}]);}\n";
 	js << "function rectGuides(r){return [{orientation:1,position:r.left},{orientation:1,position:r.right},{orientation:0,position:r.top},{orientation:0,position:r.bottom}];}\n";
-	js << "function goldenSquareGuides(bounds){dbg('goldenSquareGuides');var ratio=1.618033988749895;var compRatio=bounds.width/Math.max(1,bounds.height);var fit;if(compRatio>=ratio){var rw=bounds.height*ratio;fit={left:bounds.left+(bounds.width-rw)*0.5,top:bounds.top,right:bounds.left+(bounds.width-rw)*0.5+rw,bottom:bounds.top+bounds.height};}else{var rh=bounds.width/ratio;fit={left:bounds.left,top:bounds.top+(bounds.height-rh)*0.5,right:bounds.left+bounds.width,bottom:bounds.top+(bounds.height-rh)*0.5+rh};}var g=rectGuides(fit);var rect=fit;for(var i=0;i<10;i++){var w=rect.right-rect.left;var h=rect.bottom-rect.top;if(w<2||h<2)break;var side=Math.min(w,h);var sq;if(i%4===0){sq={left:rect.left,top:rect.top,right:rect.left+side,bottom:rect.top+side};rect.left+=side;}else if(i%4===1){sq={left:rect.left,top:rect.top,right:rect.left+side,bottom:rect.top+side};rect.top+=side;}else if(i%4===2){sq={left:rect.right-side,top:rect.top,right:rect.right,bottom:rect.top+side};rect.right-=side;}else{sq={left:rect.left,top:rect.bottom-side,right:rect.left+side,bottom:rect.bottom};rect.bottom-=side;}g=g.concat(rectGuides(sq));}return uniqueGuides(g);}\n";
-	js << "function calc(c,s,bounds){\n";
+	js << "function goldenSquareGuides(c){dbg('goldenSquareGuides');var ratio=1.618033988749895;var compRatio=c.width/Math.max(1,c.height);var fit;if(compRatio>=ratio){var rw=c.height*ratio;fit={left:(c.width-rw)*0.5,top:0,right:(c.width-rw)*0.5+rw,bottom:c.height};}else{var rh=c.width/ratio;fit={left:0,top:(c.height-rh)*0.5,right:c.width,bottom:(c.height-rh)*0.5+rh};}var g=rectGuides(fit);var rect=fit;for(var i=0;i<10;i++){var w=rect.right-rect.left;var h=rect.bottom-rect.top;if(w<2||h<2)break;var side=Math.min(w,h);var sq;if(i%4===0){sq={left:rect.left,top:rect.top,right:rect.left+side,bottom:rect.top+side};rect.left+=side;}else if(i%4===1){sq={left:rect.left,top:rect.top,right:rect.left+side,bottom:rect.top+side};rect.top+=side;}else if(i%4===2){sq={left:rect.right-side,top:rect.top,right:rect.right,bottom:rect.top+side};rect.right-=side;}else{sq={left:rect.left,top:rect.bottom-side,right:rect.left+side,bottom:rect.bottom};rect.bottom-=side;}g=g.concat(rectGuides(sq));}return uniqueGuides(g);}\n";
+	js << "function trProp(l,n,m){var t=l.property('ADBE Transform Group')||l.property('Transform');if(!t)return null;return t.property(m)||t.property(n);}\n";
+	js << "function propVal(l,n,m,d){var p=trProp(l,n,m);try{return p?p.value:d;}catch(e){return d;}}\n";
+	js << "function pointToComp2D(l,p){if(typeof l.sourcePointToComp==='function')return l.sourcePointToComp(p);var a=propVal(l,'Anchor Point','ADBE Anchor Point',[0,0,0]);var pos=propVal(l,'Position','ADBE Position',[0,0,0]);var sc=propVal(l,'Scale','ADBE Scale',[100,100,100]);var rot=propVal(l,'Rotation','ADBE Rotate Z',0);var rad=rot*Math.PI/180;var x=(p[0]-a[0])*(sc[0]/100);var y=(p[1]-a[1])*(sc[1]/100);var cr=Math.cos(rad),sr=Math.sin(rad);return [pos[0]+x*cr-y*sr,pos[1]+x*sr+y*cr];}\n";
+	js << "function layerRect(c,l){var r=null;try{r=l.sourceRectAtTime(c.time,false);}catch(e){r=null;}if(!r||r.width===undefined||r.height===undefined){r={left:0,top:0,width:l.width,height:l.height};}var pts=[pointToComp2D(l,[r.left,r.top]),pointToComp2D(l,[r.left+r.width,r.top]),pointToComp2D(l,[r.left+r.width,r.top+r.height]),pointToComp2D(l,[r.left,r.top+r.height])];var left=Math.min(pts[0][0],pts[1][0],pts[2][0],pts[3][0]);var right=Math.max(pts[0][0],pts[1][0],pts[2][0],pts[3][0]);var top=Math.min(pts[0][1],pts[1][1],pts[2][1],pts[3][1]);var bottom=Math.max(pts[0][1],pts[1][1],pts[2][1],pts[3][1]);return {left:left,top:top,width:right-left,height:bottom-top};}\n";
+	js << "function gridGuides(c,l,s){var b=layerRect(c,l);dbg('layerRect left='+Math.round(b.left)+' top='+Math.round(b.top)+' width='+Math.round(b.width)+' height='+Math.round(b.height));var g=[];var cw=(b.width-s.columns.marginLeft-s.columns.marginRight-s.columns.gutter*(s.columns.count-1))/s.columns.count;var rh=(b.height-s.rows.marginTop-s.rows.marginBottom-s.rows.gutter*(s.rows.count-1))/s.rows.count;if(cw<=0)fail('Column width is 0 or negative.');if(rh<=0)fail('Row height is 0 or negative.');for(var i=0;i<s.columns.count;i++){var x=b.left+s.columns.marginLeft+i*(cw+s.columns.gutter);g.push({orientation:1,position:x});g.push({orientation:1,position:x+cw});}for(var r=0;r<s.rows.count;r++){var y=b.top+s.rows.marginTop+r*(rh+s.rows.gutter);g.push({orientation:0,position:y});g.push({orientation:0,position:y+rh});}return roundGuides(g);}\n";
+	js << "function calc(c,l,s){\n";
 	js << "dbg('calc');\n";
-	js << "if(GUIDE_MODE===5||GUIDE_MODE===6||GUIDE_MODE===7)return goldenSquareGuides(bounds);\n";
-	js << "if(GUIDE_MODE!==1)return ratioGuides(bounds,GUIDE_MODE);\n";
-	js << "var g=[];\n";
-	js << "var cw=(bounds.width-s.columns.marginLeft-s.columns.marginRight-s.columns.gutter*(s.columns.count-1))/s.columns.count;\n";
-	js << "var rh=(bounds.height-s.rows.marginTop-s.rows.marginBottom-s.rows.gutter*(s.rows.count-1))/s.rows.count;\n";
-	js << "if(cw<=0)fail('Column width is 0 or negative.');\n";
-	js << "if(rh<=0)fail('Row height is 0 or negative.');\n";
-	js << "for(var i=0;i<s.columns.count;i++){var l=bounds.left+s.columns.marginLeft+i*(cw+s.columns.gutter);g.push({orientation:1,position:l});g.push({orientation:1,position:l+cw});}\n";
-	js << "for(var r=0;r<s.rows.count;r++){var t=bounds.top+s.rows.marginTop+r*(rh+s.rows.gutter);g.push({orientation:0,position:t});g.push({orientation:0,position:t+rh});}\n";
-	js << "return uniqueGuides(g);}\n";
-	js << "function validate(c,s,bounds){dbg('validate');if(s.columns.count<1||s.rows.count<1)fail('Count must be 1 or greater.');if(bounds.width<1||bounds.height<1)fail('Layer bounds are empty.');var vals=[s.columns.marginLeft,s.columns.marginRight,s.columns.gutter,s.rows.marginTop,s.rows.marginBottom,s.rows.gutter];for(var i=0;i<vals.length;i++){if(vals[i]<0||isNaN(vals[i]))fail('Margins and gutters must be 0 or greater.');}calc(c,s,bounds);}\n";
+	js << "if(GUIDE_MODE===5||GUIDE_MODE===6||GUIDE_MODE===7)return goldenSquareGuides(c);\n";
+	js << "if(GUIDE_MODE!==1)return ratioGuides(c,GUIDE_MODE);\n";
+	js << "return gridGuides(c,l,s);}\n";
+	js << "function guideCounts(gs){var h=0,v=0;for(var i=0;i<gs.length;i++){if(gs[i].orientation===1)v++;else h++;}return {horizontal:h,vertical:v};}\n";
+	js << "function validateGridGuideCounts(gs,s){if(GUIDE_MODE!==1)return;var got=guideCounts(gs);var eh=s.rows.count*2;var ev=s.columns.count*2;dbg('guideCounts h='+got.horizontal+'/'+eh+' v='+got.vertical+'/'+ev);if(got.horizontal!==eh||got.vertical!==ev)fail('Guide count mismatch. Expected horizontal '+eh+' and vertical '+ev+', got horizontal '+got.horizontal+' and vertical '+got.vertical+'.');}\n";
+	js << "function validate(c,s){dbg('validate');if(s.columns.count<1||s.rows.count<1)fail('Count must be 1 or greater.');if(c.width<1||c.height<1)fail('Comp size is invalid.');var vals=[s.columns.marginLeft,s.columns.marginRight,s.columns.gutter,s.rows.marginTop,s.rows.marginBottom,s.rows.gutter];for(var i=0;i<vals.length;i++){if(vals[i]<0||isNaN(vals[i]))fail('Margins and gutters must be 0 or greater.');}}\n";
 	js << "function readData(layer){dbg('readData');if(!layer.comment)return SETTINGS;try{var d=eval('('+layer.comment+')');return d&&d.plugin==='AE_Figma_Layout_Grid_AEX'?d:SETTINGS;}catch(e){dbg('readData fallback '+(e.message||e.toString()));return SETTINGS;}}\n";
-	js << "function writeData(layer,s){dbg('writeData guides='+s.generatedGuides.length);var a=[];for(var i=0;i<s.generatedGuides.length;i++){a.push('{\"orientation\":'+s.generatedGuides[i].orientation+',\"position\":'+s.generatedGuides[i].position+'}');}layer.comment='{\"plugin\":\"AE_Figma_Layout_Grid_AEX\",\"version\":\"0.1.0\",\"columns\":{\"count\":'+s.columns.count+',\"marginLeft\":'+s.columns.marginLeft+',\"marginRight\":'+s.columns.marginRight+',\"gutter\":'+s.columns.gutter+'},\"rows\":{\"count\":'+s.rows.count+',\"marginTop\":'+s.rows.marginTop+',\"marginBottom\":'+s.rows.marginBottom+',\"gutter\":'+s.rows.gutter+'},\"generatedGuides\":['+a.join(',')+']}';}\n";
+	js << "function writeData(layer,s){dbg('writeData guides='+s.generatedGuides.length);var a=[];for(var i=0;i<s.generatedGuides.length;i++){a.push('{\"orientation\":'+s.generatedGuides[i].orientation+',\"position\":'+s.generatedGuides[i].position+'}');}layer.comment='{\"plugin\":\"AE_Figma_Layout_Grid_AEX\",\"version\":\"0.1.1\",\"guideOrientation\":\"ae\",\"columns\":{\"count\":'+s.columns.count+',\"marginLeft\":'+s.columns.marginLeft+',\"marginRight\":'+s.columns.marginRight+',\"gutter\":'+s.columns.gutter+'},\"rows\":{\"count\":'+s.rows.count+',\"marginTop\":'+s.rows.marginTop+',\"marginBottom\":'+s.rows.marginBottom+',\"gutter\":'+s.rows.gutter+'},\"generatedGuides\":['+a.join(',')+']}';}\n";
 	js << "function guideCount(c){try{return c.guides?c.guides.length:0;}catch(e){return 0;}}\n";
 	js << "function removeAllGuides(c){dbg('removeAllGuides');for(var guard=0;guard<10000&&guideCount(c)>0;guard++){c.removeGuide(guideCount(c)-1);}}\n";
-	js << "function removeGuides(c,gs){dbg('removeGuides count='+gs.length);for(var pass=0;pass<2;pass++){for(var i=guideCount(c)-1;i>=0;i--){var gd=c.guides[i];for(var j=0;j<gs.length;j++){if(gd.orientationType===gs[j].orientation&&Math.round(gd.position)===Math.round(gs[j].position)){c.removeGuide(i);break;}}}}}\n";
-	js << "function apply(c,layer,s){dbg('apply');var old=readData(layer);removeGuides(c,old.generatedGuides||[]);var b=layerBounds(c,layer);var ng=calc(c,s,b);dbg('addGuides count='+ng.length);for(var i=0;i<ng.length;i++){if((ng[i].orientation===1&&ng[i].position>=0&&ng[i].position<=c.width)||(ng[i].orientation===0&&ng[i].position>=0&&ng[i].position<=c.height)){c.addGuide(ng[i].orientation,ng[i].position);}}s.generatedGuides=ng;writeData(layer,s);}\n";
+	js << "function guideMatches(gd,g,allowLegacy){var p=Math.round(g.position);if(Math.round(gd.position)!==p)return false;var o=aeOrientation(g.orientation);return gd.orientationType===o||(allowLegacy&&gd.orientationType===legacyAeOrientation(g.orientation));}\n";
+	js << "function removeGuides(c,gs,allowLegacy){dbg('removeGuides count='+gs.length+' legacy='+allowLegacy);for(var pass=0;pass<2;pass++){for(var i=guideCount(c)-1;i>=0;i--){var gd=c.guides[i];for(var j=0;j<gs.length;j++){if(guideMatches(gd,gs[j],allowLegacy)){c.removeGuide(i);break;}}}}}\n";
+	js << "function apply(c,layer,s){dbg('apply');var old=readData(layer);removeGuides(c,old.generatedGuides||[],old.guideOrientation!=='ae');var ng=calc(c,layer,s);validateGridGuideCounts(ng,s);dbg('addGuides count='+ng.length);for(var i=0;i<ng.length;i++){c.addGuide(aeOrientation(ng[i].orientation),ng[i].position);}s.generatedGuides=ng;s.guideOrientation='ae';writeData(layer,s);}\n";
 	js << "function setGuidesLocked(c,locked){dbg('setGuidesLocked '+locked);var v=null;try{v=app.activeViewer;}catch(e){}try{if(!v||!v.views||v.views.length<1)v=c.openInViewer();}catch(e2){}if(!v||!v.views||v.views.length<1)fail('Composition viewer is not available.');v.views[0].options.guidesLocked=locked;}\n";
-	js << "app.beginUndoGroup('kg_LayoutGrid');try{var c=comp();var l=null;if(ACTION==='applyGuides'){l=controller(c);var b=layerBounds(c,l);validate(c,SETTINGS,b);apply(c,l,SETTINGS);}else if(ACTION==='lockGuides'){setGuidesLocked(c,true);}else if(ACTION==='unlockGuides'){setGuidesLocked(c,false);}else if(ACTION==='clearAll'){removeAllGuides(c);try{l=controller(c);l.comment='';}catch(ignore){}}dbg('done');}catch(e){dbg('error '+(e.message||e.toString()));alert('kg_LayoutGrid: '+(e.message||e.toString()));throw e;}finally{app.endUndoGroup();}\n";
+	js << "app.beginUndoGroup('kg_LayoutGrid');try{var c=comp();var l=null;if(ACTION==='applyGuides'){l=controller(c);validate(c,SETTINGS);apply(c,l,SETTINGS);}else if(ACTION==='lockGuides'){setGuidesLocked(c,true);}else if(ACTION==='unlockGuides'){setGuidesLocked(c,false);}else if(ACTION==='clearAll'){removeAllGuides(c);try{l=controller(c);l.comment='';}catch(ignore){}}dbg('done');}catch(e){dbg('error '+(e.message||e.toString()));alert('kg_LayoutGrid: '+(e.message||e.toString()));throw e;}finally{app.endUndoGroup();}\n";
 	js << "})();\n";
 	return js.str();
 }
@@ -663,11 +692,13 @@ static PF_Err Render(PF_InData* in_data, PF_OutData* out_data, PF_ParamDef* para
 		std::memset(dst, 0, static_cast<size_t>(output->rowbytes));
 	}
 
-	const auto settings = settingsFromParams(params);
+	const double renderScaleX = rationalScale(in_data->downsample_x);
+	const double renderScaleY = rationalScale(in_data->downsample_y);
+	const auto settings = scaleSettingsForRender(settingsFromParams(params), renderScaleX, renderScaleY);
 	const int displayMode = displayModeFromParams(params);
 	const int guideMode = guideModeFromParams(params);
 	const A_long opacity = static_cast<A_long>(bandOpacityFromParams(params));
-	const A_long lineWidth = static_cast<A_long>(lineWidthFromParams(params));
+	const A_long lineWidth = scaleLineWidthForRender(static_cast<A_long>(lineWidthFromParams(params)), renderScaleX, renderScaleY);
 	const PF_Pixel colColor = colorParam(params, KG_LAYOUTGRID_COLUMN_COLOR, { PF_MAX_CHAN8, 80, 170, 255 });
 	const PF_Pixel rowColor = colorParam(params, KG_LAYOUTGRID_ROW_COLOR, { PF_MAX_CHAN8, 255, 140, 90 });
 	const PF_Pixel spiralColor = colorParam(params, KG_LAYOUTGRID_SPIRAL_COLOR, { PF_MAX_CHAN8, 255, 210, 64 });

@@ -9,6 +9,8 @@
 
 このリポジトリは After Effects SDK の `Examples` 配下に配置してビルドする前提です。各 Visual Studio プロジェクトは、SDK に含まれるヘッダー、ユーティリティ、PiPLTool を相対パスで参照します。
 
+現在のビルド環境は After Effects SDK 25.6 に更新済みです。
+
 ### 収録プラグイン
 
 | ディレクトリ | 概要 |
@@ -44,6 +46,8 @@ Adobe After Effects SDK 自体はAdobeのライセンスに従います。この
 `kg_plugins` is a collection of native plug-ins built with the Adobe After Effects SDK.
 
 This repository is intended to be placed under the After Effects SDK `Examples` directory. The Visual Studio projects reference SDK headers, utilities, and PiPLTool through relative paths.
+
+The current build environment has been updated to After Effects SDK 25.6.
 
 ### Included Plug-ins
 

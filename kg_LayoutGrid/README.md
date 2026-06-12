@@ -42,15 +42,6 @@ C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\Plug-ins\
 3. `Apply Guides` で現在の設定からAE標準ガイドを作成します。
 4. `Clear Grid Guides` または `Clear All` で、このエフェクトが作成したガイドを削除します。
 
-Windowメニューのコマンドはユーティリティダイアログとして残っていますが、現在の主な操作はEffect Controls UIです。
-
-### 実装メモ
-
-メインツールは、小さなWin32ダイアログを持つネイティブAEGPコマンドプラグインです。AEコンポジションの変更は `AEGP_ExecuteScript` 経由で実行します。これは、このSDKではAE標準ガイドの作成・削除に使える安定した直接AEGP suiteが公開されていない一方、ExtendScriptでは `comp.addGuide()` と `comp.removeGuide()` を利用できるためです。
-
-PFエフェクトのエントリーポイントは、透明な列バンドと行バンドをレンダリングします。行と列が重なる領域はアルファ合成により濃く表示されます。ガイド操作は、AE標準ガイドが安定した直接AEGP suiteとして公開されていないため、引き続き `AEGP_ExecuteScript` を使います。
-
-グリッド計算とバリデーションは `src/GridMath.*` と `src/GridValidation.*` のプレーンなC++コードです。
 
 ### 既知の制限
 
@@ -61,6 +52,7 @@ PFエフェクトのエントリーポイントは、透明な列バンドと行
 - AE標準ガイドには名前がないため、削除時は `orientation + position` の一致で判定します。
 - 手動で作成したガイドが、生成されたガイドと完全に同じ向き・位置にある場合、AE側で区別できません。
 - macOSは未実装です。AEGPエントリーとグリッドロジックは移植可能ですが、UIにはmacOS向け実装が必要です。
+- ガイド生成が上手く行かない問題を確認しています。
 
 ### ライセンス
 

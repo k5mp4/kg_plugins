@@ -12,22 +12,50 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\GridMath.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="..\src\GridModel.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="..\src\GridValidation.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="..\src\JsonStorage.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="..\src\EffectStub.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="..\src\PluginMain.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="..\src\GridMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GridModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\GridValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\JsonStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\EffectStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PluginMain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\GridMath.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="..\src\GridValidation.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="..\src\JsonStorage.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="..\src\EffectStub.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="..\src\PluginMain.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="..\src\GridMath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GridValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\JsonStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\EffectStub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\PluginMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Util\AEGP_SuiteHandler.cpp" />
+    <ClCompile Include="..\..\..\Util\MissingSuiteError.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\kg_LayoutGrid_PiPL.r"><Filter>Resource Files</Filter></CustomBuild>
-    <ResourceCompile Include="kg_LayoutGrid_PiPL.rc"><Filter>Resource Files</Filter></ResourceCompile>
+    <CustomBuild Include="..\kg_LayoutGrid_PiPL.r">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <ResourceCompile Include="kg_LayoutGrid_PiPL.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -16,7 +16,7 @@
 
 - ターゲット: Windows x64 `.aex`
 - ツールチェーン: Visual Studio 2022、MSVC v143
-- SDKバージョン: After Effects SDK 22.0（PF API 13.27）
+- SDKバージョン: After Effects SDK 25.6
 - SDK配置: このリポジトリから見た `Examples/Headers`、`Examples/Util`、`Examples/Resources/PiPLTool`
 
 ```powershell
@@ -81,7 +81,7 @@ It can reference up to eight path parameters and exposes controls for line count
 
 - Target: Windows x64 `.aex`
 - Toolchain: Visual Studio 2022, MSVC v143
-- SDK version: After Effects SDK 22.0 (PF API 13.27)
+- SDK version: After Effects SDK 25.6
 - SDK layout: this repository's `Examples/Headers`, `Examples/Util`, and `Examples/Resources/PiPLTool`
 
 ```powershell
@@ -107,6 +107,10 @@ C:\Program Files\Adobe\Adobe After Effects 2025\Support Files\Plug-ins\
 3. Select path references in the `Path` group.
 4. Adjust Line Count, Spacing, Width, Path Offset, and related controls in `Line Setup`.
 5. Use `Trim`, `Dash`, `Taper`, `Style`, `Web`, `Noise`, `Audio Reactive`, and `Grunge` as needed.
+
+### Similar Plug-ins
+
+`kg_strings` is conceptually close to line, path, particle, and network-style effects such as Rowbyte Plexus, Maxon Trapcode 3D Stroke, Maxon Trapcode Form/Particular, and Stardust. Its focus is narrower: it generates multiple animated string-like lines from After Effects mask or shape paths, with direct controls for spacing, trim, taper, web connections, noise, and audio-reactive motion.
 
 ### Implementation Notes
 
