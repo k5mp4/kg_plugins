@@ -1,4 +1,6 @@
 # kg_plugins
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fk5mp4%2Fkg_plugins.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fk5mp4%2Fkg_plugins?ref=badge_shield)
+
 
 [日本語](#日本語) / [English](#english)
 
@@ -80,3 +82,6 @@ Generated `.aex` files are written to build output directories such as `build/Re
 The source code in this repository is released under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
 The Adobe After Effects SDK itself is governed by Adobe's license. This repository does not redistribute the SDK.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fk5mp4%2Fkg_plugins.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fk5mp4%2Fkg_plugins?ref=badge_large)
