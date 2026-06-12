@@ -1,0 +1,421 @@
+#pragma once
+#ifndef KG_LINEANIM_H
+#define KG_LINEANIM_H
+
+#define PF_DEEP_COLOR_AWARE 1
+
+#include "AEConfig.h"
+#include "entry.h"
+#include "AE_Effect.h"
+#include "AE_EffectCB.h"
+#include "AE_EffectCBSuites.h"
+#include "AE_EffectPixelFormat.h"
+#include "AE_EffectSuites.h"
+#include "AE_Macros.h"
+#include "AEGP_SuiteHandler.h"
+#include "AEFX_SuiteHelper.h"
+#include "Param_Utils.h"
+#include "Smart_Utils.h"
+#include "String_Utils.h"
+
+#define KG_NAME "kg_strings"
+#define KG_MATCHNAME "kg_strings"
+#define KG_CATEGORY "kg_plugins"
+#define KG_DESCRIPTION "Generate animated strings along selected layer paths."
+
+#define MAJOR_VERSION 1
+#define MINOR_VERSION 0
+#define BUG_VERSION 0
+#define STAGE_VERSION PF_Stage_DEVELOP
+#define BUILD_VERSION 20
+#define KG_VERSION PF_VERSION(MAJOR_VERSION, MINOR_VERSION, BUG_VERSION, STAGE_VERSION, BUILD_VERSION)
+
+#define LNA_MAX_PATHS 8
+#define LNA_AUDIO_WAVE_SAMPLES 256
+
+#define KG_OUT_FLAGS (PF_OutFlag_CUSTOM_UI | PF_OutFlag_PIX_INDEPENDENT | PF_OutFlag_DEEP_COLOR_AWARE | PF_OutFlag_NON_PARAM_VARY | PF_OutFlag_I_USE_AUDIO)
+#define KG_OUT_FLAGS2 (PF_OutFlag2_I_USE_3D_CAMERA | PF_OutFlag2_PARAM_GROUP_START_COLLAPSED_FLAG | PF_OutFlag2_SUPPORTS_THREADED_RENDERING)
+
+enum {
+	LNA_INPUT = 0,
+	LNA_PATH_GROUP_START,
+	LNA_PATH,
+	LNA_PATH_2,
+	LNA_PATH_3,
+	LNA_PATH_4,
+	LNA_PATH_5,
+	LNA_PATH_6,
+	LNA_PATH_7,
+	LNA_PATH_8,
+	LNA_PATH_GROUP_END,
+	LNA_LINE_GROUP_START,
+	LNA_LINE_COUNT,
+	LNA_SPACING,
+	LNA_WIDTH,
+	LNA_CURVE_SEGMENTS,
+	LNA_PATH_OFFSET,
+	LNA_ENABLE_3D,
+	LNA_3D_SHAPE,
+	LNA_POSITION_X,
+	LNA_POSITION_Y,
+	LNA_POSITION_Z,
+	LNA_LINE_X_SPACING,
+	LNA_LINE_Y_SPACING,
+	LNA_LINE_Z_SPACING,
+	LNA_TWIST,
+	LNA_PHASE,
+	LNA_TAPE_FLATNESS,
+	LNA_TAPE_TWIST,
+	LNA_BEND_SMOOTH,
+	LNA_BEND_OVERSHOOT,
+	LNA_BEND_RAMP_AMOUNT,
+	LNA_BEND_RAMP_1,
+	LNA_BEND_RAMP_2,
+	LNA_BEND_RAMP_3,
+	LNA_BEND_RAMP_4,
+	LNA_BEND_RAMP_5,
+	LNA_BEND_HANDLE_OUT_1,
+	LNA_BEND_HANDLE_IN_2,
+	LNA_BEND_HANDLE_OUT_2,
+	LNA_BEND_HANDLE_IN_3,
+	LNA_BEND_HANDLE_OUT_3,
+	LNA_BEND_HANDLE_IN_4,
+	LNA_BEND_HANDLE_OUT_4,
+	LNA_BEND_HANDLE_IN_5,
+	LNA_LINE_GROUP_END,
+	LNA_TRIM_GROUP_START,
+	LNA_START,
+	LNA_END,
+	LNA_OFFSET,
+	LNA_TRIM_HEAD_RANDOM,
+	LNA_TRIM_TAIL_RANDOM,
+	LNA_TRIM_GROUP_END,
+	LNA_DASH_GROUP_START,
+	LNA_DASH_LENGTH,
+	LNA_DASH_GAP,
+	LNA_DASH_OFFSET,
+	LNA_DASH_LINE_PHASE,
+	LNA_DASH_GROUP_END,
+	LNA_TAPER_GROUP_START,
+	LNA_TAPER_START,
+	LNA_TAPER_END,
+	LNA_TAPER_MIN_WIDTH,
+	LNA_TAPER_OFFSET,
+	LNA_TAPER_GROUP_END,
+	LNA_STYLE_GROUP_START,
+	LNA_COLOR,
+	LNA_END_COLOR,
+	LNA_LINE_COLOR_AMOUNT,
+	LNA_LINE_COLOR_OFFSET,
+	LNA_LINE_COLOR_RANDOM,
+	LNA_LINE_COLOR_1,
+	LNA_LINE_COLOR_2,
+	LNA_LINE_COLOR_3,
+	LNA_LINE_COLOR_4,
+	LNA_LINE_COLOR_5,
+	LNA_LINE_COLOR_STOP_1,
+	LNA_OPACITY,
+	LNA_BLEND_MODE,
+	LNA_STYLE_GROUP_END,
+	LNA_WEB_GROUP_START,
+	LNA_WEB_MODE,
+	LNA_WEB_TARGET,
+	LNA_WEB_TARGET_MODE,
+	LNA_WEB_PATTERN,
+	LNA_WEB_PATTERN_COUNT,
+	LNA_WEB_PATTERN_RANDOM,
+	LNA_WEB_AMOUNT,
+	LNA_WEB_START,
+	LNA_WEB_END,
+	LNA_WEB_OFFSET,
+	LNA_WEB_DIRECTION,
+	LNA_WEB_WEAVE,
+	LNA_WEB_WEAVE_COUNT,
+	LNA_WEB_WEAVE_RANDOM,
+	LNA_WEB_GROUP_END,
+	LNA_NOISE_GROUP_START,
+	LNA_NOISE_RAMP,
+	LNA_NOISE_SEED,
+	LNA_NOISE_POSITION,
+	LNA_NOISE_WIDTH,
+	LNA_NOISE_OPACITY,
+	LNA_NOISE_TRIM,
+	LNA_NOISE_WAVE,
+	LNA_NOISE_LINE_PHASE,
+	LNA_NOISE_SCALE,
+	LNA_NOISE_SPEED,
+	LNA_NOISE_PHASE,
+	LNA_NOISE_GROUP_END,
+	LNA_AUDIO_GROUP_START,
+	LNA_AUDIO_LAYER,
+	LNA_AUDIO_SOURCE,
+	LNA_AUDIO_AMOUNT,
+	LNA_AUDIO_WINDOW,
+	LNA_AUDIO_DETAIL,
+	LNA_AUDIO_LINE_PHASE,
+	LNA_AUDIO_COLOR,
+	LNA_AUDIO_COLOR_AMOUNT,
+	LNA_AUDIO_GROUP_END,
+	LNA_GRUNGE_GROUP_START,
+	LNA_GRUNGE_AMOUNT,
+	LNA_GRUNGE_ROUGHNESS,
+	LNA_GRUNGE_FREQUENCY,
+	LNA_GRUNGE_JITTER,
+	LNA_GRUNGE_GROUP_END,
+	LNA_NUM_PARAMS
+};
+
+enum {
+	PATH_GROUP_START_DISK_ID = 1,
+	PATH_DISK_ID,
+	PATH_GROUP_END_DISK_ID,
+	LINE_GROUP_START_DISK_ID,
+	LINE_COUNT_DISK_ID,
+	SPACING_DISK_ID,
+	WIDTH_DISK_ID,
+	PATH_OFFSET_DISK_ID,
+	BEND_SMOOTH_DISK_ID,
+	BEND_OVERSHOOT_DISK_ID,
+	LINE_GROUP_END_DISK_ID,
+	STYLE_GROUP_START_DISK_ID,
+	COLOR_DISK_ID,
+	END_COLOR_DISK_ID,
+	OPACITY_DISK_ID,
+	BLEND_MODE_DISK_ID,
+	STYLE_GROUP_END_DISK_ID,
+	TRIM_GROUP_START_DISK_ID,
+	START_DISK_ID,
+	END_DISK_ID,
+	OFFSET_DISK_ID,
+	TRIM_HEAD_RANDOM_DISK_ID,
+	TRIM_TAIL_RANDOM_DISK_ID,
+	TRIM_GROUP_END_DISK_ID,
+	DASH_GROUP_START_DISK_ID,
+	DASH_LENGTH_DISK_ID,
+	DASH_GAP_DISK_ID,
+	DASH_OFFSET_DISK_ID,
+	DASH_GROUP_END_DISK_ID,
+	TAPER_GROUP_START_DISK_ID,
+	TAPER_START_DISK_ID,
+	TAPER_END_DISK_ID,
+	TAPER_MIN_WIDTH_DISK_ID,
+	TAPER_GROUP_END_DISK_ID,
+	WEB_GROUP_START_DISK_ID,
+	WEB_MODE_DISK_ID,
+	WEB_TARGET_DISK_ID,
+	WEB_AMOUNT_DISK_ID,
+	WEB_START_DISK_ID,
+	WEB_END_DISK_ID,
+	WEB_OFFSET_DISK_ID,
+	WEB_DIRECTION_DISK_ID,
+	WEB_WEAVE_DISK_ID,
+	WEB_WEAVE_COUNT_DISK_ID,
+	WEB_WEAVE_RANDOM_DISK_ID,
+	WEB_GROUP_END_DISK_ID,
+	NOISE_GROUP_START_DISK_ID,
+	NOISE_RAMP_DISK_ID
+	, NOISE_SEED_DISK_ID
+	, NOISE_POSITION_DISK_ID
+	, NOISE_WIDTH_DISK_ID
+	, NOISE_OPACITY_DISK_ID
+	, NOISE_TRIM_DISK_ID
+	, NOISE_WAVE_DISK_ID
+	, NOISE_SCALE_DISK_ID
+	, NOISE_SPEED_DISK_ID
+	, NOISE_GROUP_END_DISK_ID
+	, TWIST_DISK_ID
+	, TAPE_FLATNESS_DISK_ID
+	, TAPE_TWIST_DISK_ID
+	, NOISE_LINE_PHASE_DISK_ID
+	, BEND_RAMP_AMOUNT_DISK_ID
+	, BEND_RAMP_1_DISK_ID
+	, BEND_RAMP_2_DISK_ID
+	, BEND_RAMP_3_DISK_ID
+	, BEND_RAMP_4_DISK_ID
+	, BEND_RAMP_5_DISK_ID
+	, BEND_HANDLE_OUT_1_DISK_ID
+	, BEND_HANDLE_IN_2_DISK_ID
+	, BEND_HANDLE_OUT_2_DISK_ID
+	, BEND_HANDLE_IN_3_DISK_ID
+	, BEND_HANDLE_OUT_3_DISK_ID
+	, BEND_HANDLE_IN_4_DISK_ID
+	, BEND_HANDLE_OUT_4_DISK_ID
+	, BEND_HANDLE_IN_5_DISK_ID
+	, LINE_COLOR_AMOUNT_DISK_ID
+	, LINE_COLOR_OFFSET_DISK_ID
+	, LINE_COLOR_RANDOM_DISK_ID
+	, LINE_COLOR_1_DISK_ID
+	, LINE_COLOR_2_DISK_ID
+	, LINE_COLOR_3_DISK_ID
+	, LINE_COLOR_4_DISK_ID
+	, LINE_COLOR_5_DISK_ID
+	, LINE_COLOR_STOP_1_DISK_ID
+	, LINE_COLOR_STOP_2_DISK_ID
+	, LINE_COLOR_STOP_3_DISK_ID
+	, LINE_COLOR_STOP_4_DISK_ID
+	, LINE_COLOR_STOP_5_DISK_ID
+	, NOISE_PHASE_DISK_ID
+	, PHASE_DISK_ID
+	, DASH_LINE_PHASE_DISK_ID
+	, TAPER_OFFSET_DISK_ID
+	, ENABLE_3D_DISK_ID
+	, LINE_X_SPACING_DISK_ID
+	, LINE_Y_SPACING_DISK_ID
+	, LINE_Z_SPACING_DISK_ID
+	, POSITION_X_DISK_ID
+	, POSITION_Y_DISK_ID
+	, POSITION_Z_DISK_ID
+	, PATH_2_DISK_ID
+	, PATH_3_DISK_ID
+	, PATH_4_DISK_ID
+	, PATH_5_DISK_ID
+	, PATH_6_DISK_ID
+	, PATH_7_DISK_ID
+	, PATH_8_DISK_ID
+	, WEB_TARGET_MODE_DISK_ID
+	, CURVE_SEGMENTS_DISK_ID
+	, OCCLUSION_GROUP_START_DISK_ID
+	, OCCLUSION_LAYER_1_DISK_ID
+	, OCCLUSION_LAYER_2_DISK_ID
+	, OCCLUSION_LAYER_3_DISK_ID
+	, OCCLUSION_LAYER_4_DISK_ID
+	, OCCLUSION_ALPHA_THRESHOLD_DISK_ID
+	, OCCLUSION_DEPTH_BIAS_DISK_ID
+	, OCCLUSION_GROUP_END_DISK_ID
+	, AUDIO_GROUP_START_DISK_ID
+	, AUDIO_LAYER_DISK_ID
+	, AUDIO_AMOUNT_DISK_ID
+	, AUDIO_WINDOW_DISK_ID
+	, AUDIO_DETAIL_DISK_ID
+	, AUDIO_LINE_PHASE_DISK_ID
+	, AUDIO_GROUP_END_DISK_ID
+	, AUDIO_SOURCE_DISK_ID
+	, SHAPE_3D_DISK_ID
+	, WEB_PATTERN_DISK_ID
+	, WEB_PATTERN_COUNT_DISK_ID
+	, WEB_PATTERN_RANDOM_DISK_ID
+	, AUDIO_COLOR_DISK_ID
+	, AUDIO_COLOR_AMOUNT_DISK_ID
+	, GRUNGE_GROUP_START_DISK_ID
+	, GRUNGE_AMOUNT_DISK_ID
+	, GRUNGE_ROUGHNESS_DISK_ID
+	, GRUNGE_FREQUENCY_DISK_ID
+	, GRUNGE_JITTER_DISK_ID
+	, GRUNGE_GROUP_END_DISK_ID
+};
+
+typedef struct LineAnimRenderInfo {
+	PF_PathID path_ids[LNA_MAX_PATHS];
+	A_long path_count;
+	A_long line_count;
+	PF_FpLong spacing;
+	PF_FpLong width;
+	A_long curve_segments;
+	PF_FpLong path_offset;
+	PF_Boolean enable_3d;
+	A_long shape_3d;
+	PF_FpLong position_x;
+	PF_FpLong position_y;
+	PF_FpLong position_z;
+	PF_FpLong line_x_spacing;
+	PF_FpLong line_y_spacing;
+	PF_FpLong line_z_spacing;
+	PF_FpLong twist;
+	PF_FpLong phase;
+	PF_FpLong twist_axis_x;
+	PF_FpLong twist_axis_y;
+	PF_FpLong twist_radius;
+	PF_FpLong twist_depth;
+	PF_FpLong sphere_z_span;
+	PF_Boolean twist_loop_ramp;
+	PF_FpLong tape_flatness;
+	PF_FpLong tape_twist;
+	PF_FpLong bend_smooth;
+	PF_FpLong bend_overshoot;
+	PF_FpLong bend_ramp_amount;
+	PF_FpLong bend_ramp[5];
+	PF_FpLong bend_handle_out[4];
+	PF_FpLong bend_handle_in[4];
+	PF_Pixel color;
+	PF_Pixel end_color;
+	PF_FpLong line_color_amount;
+	PF_FpLong line_color_offset;
+	PF_FpLong line_color_random;
+	PF_Pixel line_colors[5];
+	PF_FpLong line_color_stops[5];
+	PF_FpLong opacity;
+	A_long blend_mode;
+	PF_FpLong start;
+	PF_FpLong end;
+	PF_FpLong offset;
+	PF_FpLong trim_head_random;
+	PF_FpLong trim_tail_random;
+	PF_FpLong dash_length;
+	PF_FpLong dash_gap;
+	PF_FpLong dash_offset;
+	PF_FpLong dash_line_phase;
+	PF_FpLong taper_start;
+	PF_FpLong taper_end;
+	PF_FpLong taper_min_width;
+	PF_FpLong taper_offset;
+	A_long web_mode;
+	PF_FpLong web_target_x;
+	PF_FpLong web_target_y;
+	A_long web_target_mode;
+	A_long web_pattern;
+	A_long web_pattern_count;
+	PF_FpLong web_pattern_random;
+	PF_FpLong web_amount;
+	PF_FpLong web_start;
+	PF_FpLong web_end;
+	PF_FpLong web_offset;
+	A_long web_direction;
+	PF_FpLong web_weave;
+	A_long web_weave_count;
+	PF_FpLong web_weave_random;
+	PF_FpLong noise_ramp;
+	A_long noise_seed;
+	PF_FpLong noise_position;
+	PF_FpLong noise_width;
+	PF_FpLong noise_opacity;
+	PF_FpLong noise_trim;
+	PF_FpLong noise_wave;
+	PF_FpLong noise_line_phase;
+	PF_FpLong noise_scale;
+	PF_FpLong noise_speed;
+	PF_FpLong noise_phase;
+	A_long audio_source;
+	PF_FpLong audio_amount;
+	PF_FpLong audio_window_ms;
+	PF_FpLong audio_detail;
+	PF_FpLong audio_line_phase;
+	PF_Pixel audio_color;
+	PF_FpLong audio_color_amount;
+	PF_FpLong audio_level;
+	A_long audio_sample_count;
+	PF_FpLong audio_wave[LNA_AUDIO_WAVE_SAMPLES];
+	PF_Boolean effect_layer_3d;
+	PF_Boolean camera_active;
+	A_Matrix4 camera_matrix;
+	PF_FpLong camera_dist;
+	A_long camera_image_width;
+	A_long camera_image_height;
+	PF_FpLong comp_center_x;
+	PF_FpLong comp_center_y;
+	PF_FpLong grunge_amount;
+	PF_FpLong grunge_roughness;
+	PF_FpLong grunge_frequency;
+	PF_FpLong grunge_jitter;
+} LineAnimRenderInfo;
+
+extern "C" {
+	DllExport PF_Err EffectMain(
+		PF_Cmd cmd,
+		PF_InData *in_data,
+		PF_OutData *out_data,
+		PF_ParamDef *params[],
+		PF_LayerDef *output,
+		void *extra);
+}
+
+#endif

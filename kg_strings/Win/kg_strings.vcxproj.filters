@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8b5dc129-b58c-405d-a2aa-51b0b336cc16}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\AE">
+      <UniqueIdentifier>{28fd6ebe-85b6-486d-b450-ceaa7fce7d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{bf43df3b-459d-4cc8-8a3b-dc358a4902c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Supporting code">
+      <UniqueIdentifier>{13b099d9-fd41-445e-b988-b9298936d508}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{f3d1ad94-5b61-42d5-858e-c6b1570f54bb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\kg_strings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\A.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_Effect.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_EffectCB.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_EffectCBSuites.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_EffectPixelFormat.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_EffectSuites.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_Macros.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\AE_PluginData.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Headers\PrSDKAESupport.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Util\AEGP_SuiteHandler.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Util\entry.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Util\Param_Utils.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Util\Smart_Utils.h">
+      <Filter>Supporting code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Util\String_Utils.h">
+      <Filter>Header Files\AE</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\kg_stringsPiPL.r">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="kg_stringsPiPL.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\kg_strings_core.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\src\kg_strings_params.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\src\kg_strings_paths.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\src\kg_strings_web.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\src\kg_strings_ui.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\src\kg_strings_render.cpp">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Util\AEGP_SuiteHandler.cpp">
+      <Filter>Supporting code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Util\MissingSuiteError.cpp">
+      <Filter>Supporting code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Util\Smart_Utils.cpp">
+      <Filter>Supporting code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\kg_strings.cpp" />
+  </ItemGroup>
+</Project>

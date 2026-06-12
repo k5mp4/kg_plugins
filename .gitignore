@@ -17,3 +17,17 @@
 !/kg_LayoutGrid/Win/kg_LayoutGrid.vcxproj
 !/kg_LayoutGrid/Win/kg_LayoutGrid.vcxproj.filters
 !/kg_LayoutGrid/Win/kg_LayoutGrid_PiPL.rc
+
+!/kg_strings/
+/kg_strings/*
+!/kg_strings/README.md
+!/kg_strings/kg_strings.cpp
+!/kg_strings/kg_strings.h
+!/kg_strings/kg_stringsPiPL.r
+!/kg_strings/src/
+!/kg_strings/src/**
+!/kg_strings/Win/
+/kg_strings/Win/*
+!/kg_strings/Win/kg_strings.vcxproj
+!/kg_strings/Win/kg_strings.vcxproj.filters
+!/kg_strings/Win/kg_stringsPiPL.rc
